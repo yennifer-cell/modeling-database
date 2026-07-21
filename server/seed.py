@@ -6,7 +6,6 @@ with app.app_context():
     peter = Driver(name="Peter")
     Trisha= Driver(name="Trisha")
 
-
     db.session.add_all([sam, peter, Trisha])
     db.session.commit()
 
