@@ -91,6 +91,11 @@ def add_revenue():
     db.session.add(new_rev)
     db.session.commit()
 
+    if 'trip_id' in data:
+            trip = Trip.query.filter_by(id=data['trip_id']).first()
+            if not trip :
+                return jsonify({'error' : f'Trip with id {data['trip_id']} not found'})
+
     return jsonify({
         'id' : new_rev.id,
         'amount' : new_rev.amount,
