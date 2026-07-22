@@ -102,5 +102,29 @@ def add_truck():
         }
     ), 201
 
+@app.route("/trucks/<int:id>", methods=["PATCH", "PUT"])
+def update_truck(id):
+    data = request.get_json()
+    truck = Truck.query.filter_by(id=id).first()
+
+    if not truck:
+        return jsonify({"error":"Truck not found"})
+    
+    driver_id = data.get("driver_id", None)
+
+    if driver_id is None:
+        return jsonify({"error": "Driver not found"}), 404
+    
+    for key, value in data.items():
+        if hasattr(truck, key):
+            setattr(truck, key, value)
+
+    db.session.commit()
+
+    return jsonify({
+        "id": truck.id,
+        "plate_number": truck.plate_number
+    }), 201
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
