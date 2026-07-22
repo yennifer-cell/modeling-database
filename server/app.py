@@ -66,6 +66,151 @@ def delete_driver(id):
         "id": driver.id,
         "name": driver.name
     }), 201
+# ==========================================
+# TRIP CRUD OPERATIONS
+# ==========================================
+
+@app.route("/trips", methods=['GET'])
+def get_trips():
+    trips = Trip.query.all()
+    return jsonify([{
+        "id": trip.id, 
+        "trip_date": trip.trip_date,
+        "origin": trip.origin,
+        "distance": trip.distance,
+        "destination": trip.destination,
+        "driver_id": trip.driver_id,
+        "truck_id": trip.truck_id
+    } for trip in trips])
+
+@app.route("/trips", methods=['POST'])
+def add_trip():
+    data = request.get_json()
+    
+    new_trip = Trip(
+        trip_date=data["trip_date"],
+        origin=data["origin"],
+        distance=data["distance"],
+        destination=data["destination"],
+        driver_id=data["driver_id"],
+        truck_id=data["truck_id"]
+    )
+    db.session.add(new_trip)
+    db.session.commit()
+
+    return jsonify(
+        {
+            "id": new_trip.id,
+            "trip_date": new_trip.trip_date,
+            "origin": new_trip.origin,
+            "distance": new_trip.distance,
+            "destination": new_trip.destination,
+            "driver_id": new_trip.driver_id,
+            "truck_id": new_trip.truck_id
+        }
+    ), 201
+
+@app.route("/trips/<int:id>", methods=["PATCH", "PUT"])
+def update_trip(id):
+    data = request.get_json()
+    trip = Trip.query.filter_by(id=id).first()
+    
+    if not trip:
+        return jsonify({"error":"Trip not found"})
+    
+    for key, value in data.items():
+        if hasattr(trip, key):
+            setattr(trip, key, value)
+@app.route("/trucks", methods=["GET"])
+def get_trucks():
+    trucks = Truck.query.all()
+    return jsonify([{"id": truck.id, "plate_number": truck.plate_number} for truck in trucks])
+
+@app.route("/trucks", methods=['POST'])
+def add_truck():
+    data = request.get_json()
+    
+    driver_id = data.get("driver_id", None)
+    driver = Driver.query.filter_by(id=driver_id).first()
+
+    if not driver and driver_id != None:
+        return jsonify({"error": "Driver not found"}), 404
+    
+    new_truck = Truck(plate_number=data["plate_number"], driver_id=driver_id)
+    db.session.add(new_truck)
+    db.session.commit()
+
+    return jsonify(
+        {
+            "id": new_truck.id,
+            "plate_number": new_truck.plate_number
+        }
+    ), 201
+
+@app.route("/trucks/<int:id>", methods=["PATCH", "PUT"])
+def update_truck(id):
+    data = request.get_json()
+    truck = Truck.query.filter_by(id=id).first()
+
+    if not truck:
+        return jsonify({"error":"Truck not found"})
+    
+    driver_id = data.get("driver_id", None)
+    driver = Driver.query.filter_by(id=driver_id).first()
+
+    if not driver and driver_id != None:
+        return jsonify({"error": "Driver not found"}), 404
+    
+    for key, value in data.items():
+        if hasattr(truck, key):
+            setattr(truck, key, value)
+
+    db.session.commit()
+
+    return jsonify({
+        "id": trip.id,
+        "trip_date": trip.trip_date,
+        "origin": trip.origin,
+        "distance": trip.distance,
+        "destination": trip.destination,
+        "driver_id": trip.driver_id,
+        "truck_id": trip.truck_id
+    }), 201
+
+@app.route("/trips/<int:id>", methods=["DELETE"])
+def delete_trip(id):
+    trip = Trip.query.filter_by(id=id).first()
+    
+    if not trip:
+        return jsonify({"error":"Trip not found"})
+        
+    db.session.delete(trip)
+    db.session.commit()
+    
+    return jsonify({
+        "id": trip.id,
+        "trip_date": trip.trip_date,
+        "origin": trip.origin,
+        "distance": trip.distance,
+        "destination": trip.destination,
+        "driver_id": trip.driver_id,
+        "truck_id": trip.truck_id
+    }), 201
+        "id": truck.id,
+        "plate_number": truck.plate_number
+    }), 201
+
+@app.route("/trucks/<int:id>", methods=["DELETE"])
+def delete_truck(id):
+    truck = Truck.query.filter_by(id=id).first()
+    if not truck:
+        return jsonify({"error":"Truck not found"})
+    db.session.delete(truck)
+    db.session.commit()
+    return jsonify({
+        "id": truck.id,
+        "plate_number": truck.plate_number
+    }), 201
 
 #Revenue
 @app.route('/revenue', methods=['GET'])
