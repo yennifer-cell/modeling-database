@@ -86,11 +86,11 @@ def add_truck():
     data = request.get_json()
     
     driver_id = data.get("driver_id", None)
+    driver = Driver.query.filter_by(id=driver_id).first()
 
-    if driver_id is None:
+    if not driver and driver_id != None:
         return jsonify({"error": "Driver not found"}), 404
     
-
     new_truck = Truck(plate_number=data["plate_number"], driver_id=driver_id)
     db.session.add(new_truck)
     db.session.commit()
