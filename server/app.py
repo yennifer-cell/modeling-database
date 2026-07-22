@@ -111,8 +111,9 @@ def update_truck(id):
         return jsonify({"error":"Truck not found"})
     
     driver_id = data.get("driver_id", None)
+    driver = Driver.query.filter_by(id=driver_id).first()
 
-    if driver_id is None:
+    if not driver and driver_id != None:
         return jsonify({"error": "Driver not found"}), 404
     
     for key, value in data.items():
