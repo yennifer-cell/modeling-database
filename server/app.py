@@ -69,12 +69,15 @@ def delete_driver(id):
     driver = Driver.query.filter_by(id=id).first()
     if not driver:
         return jsonify({"error":"Driver not found"})
-    db.session.delete(driver)
-    db.session.commit()
-    return jsonify({
+    
+    driver_data = {
         "id": driver.id,
         "name": driver.name
-    }), 201
+    }
+
+    db.session.delete(driver)
+    db.session.commit()
+    return jsonify(driver_data), 201
 
 @app.route("/trucks", methods=["GET"])
 def get_trucks():
