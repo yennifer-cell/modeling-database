@@ -76,5 +76,10 @@ def delete_driver(id):
         "name": driver.name
     }), 201
 
+@app.route("/trucks", methods=["GET"])
+def get_trcuks():
+    trucks = Truck.query.all()
+    return jsonify([{"id": truck.id, "plate_number": truck.plate_number} for truck in trucks])
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
